@@ -22,9 +22,7 @@ func removeIndex(array []interface{}, index int) []interface{} {
 }
 
 func solve(nums_signs []interface{}) []interface{} {
-	fmt.Println(nums_signs)
 	for i := 0; i < len(nums_signs); {
-		fmt.Printf("IN ^\n")
 		if i+1 < len(nums_signs) {
 			if nums_signs[i] == "^" {
 				nums_signs[i-1] = math.Pow(nums_signs[i-1].(float64), nums_signs[i+1].(float64))
@@ -39,7 +37,6 @@ func solve(nums_signs []interface{}) []interface{} {
 	}
 
 	for i := 0; i < len(nums_signs); {
-		fmt.Printf("IN */\n")
 		if i+1 < len(nums_signs) {
 			if nums_signs[i] == "*" {
 				nums_signs[i-1] = nums_signs[i-1].(float64) * nums_signs[i+1].(float64)
@@ -58,7 +55,6 @@ func solve(nums_signs []interface{}) []interface{} {
 	}
 
 	for i := 0; i < len(nums_signs); {
-		fmt.Printf("IN +-\n")
 		if i+1 < len(nums_signs) {
 			if nums_signs[i] == "+" {
 				nums_signs[i-1] = nums_signs[i-1].(float64) + nums_signs[i+1].(float64)
@@ -92,18 +88,20 @@ func main() {
 	calc = strings.TrimSpace(calc)
 	calcs := strings.Split(calc, " ")
 
-	//for i := 0; len(nums_signs) != 1; i++ {
+	for i := 0; i <= len(calcs)-1; i++ {
+		float_num, err := strconv.ParseFloat(calcs[i], 64)
 
-		for i := 0; i <= len(calcs)-1; i++ {
-			float_num, err := strconv.ParseFloat(calcs[i], 64)
-
-			if err == nil {
-				nums_signs = append(nums_signs, float_num)
-			} else {
-				nums_signs = append(nums_signs, calcs[i])
-			}
+		if err == nil {
+			nums_signs = append(nums_signs, float_num)
+		} else {
+			nums_signs = append(nums_signs, calcs[i])
 		}
+	}
+	
+	for i := 0; len(nums_signs) != 1; i++ {
 
+		closed_par_idx = -1
+		opened_par_idx = -1
 		for i := 0; i < len(nums_signs); i++ {
 			if nums_signs[i] == "(" {
 				opened_par_idx = i
@@ -115,16 +113,20 @@ func main() {
 
 		if closed_par_idx < opened_par_idx {
 			fmt.Printf("Invalid expression")
-			//break
+			break
 		} else if closed_par_idx > 0 && opened_par_idx >= 0 {
 			nums_signs = removeIndex(nums_signs, opened_par_idx)
 			nums_signs = removeIndex(nums_signs, closed_par_idx - 1)
 			nums_signs[opened_par_idx] = solve(nums_signs[opened_par_idx : closed_par_idx - 1])[0]
 
+			for i := opened_par_idx + 1; i < closed_par_idx - 1; i++ {
+				nums_signs = removeIndex(nums_signs, opened_par_idx + 1)
+			}
+
 		} else {
 			nums_signs = solve(nums_signs)
 		}
-//  }
+    }
 
-	fmt.Println(nums_signs)
+	fmt.Println(nums_signs[0])
 }
